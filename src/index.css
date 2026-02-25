@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    --background: 222 47% 3%;
+    --foreground: 220 20% 90%;
+
+    --card: 222 47% 7%;
+    --card-foreground: 220 20% 90%;
+
+    --popover: 222 47% 7%;
+    --popover-foreground: 220 20% 90%;
+
+    --primary: 207 90% 60%;
+    --primary-foreground: 222 47% 3%;
+
+    --secondary: 187 80% 55%;
+    --secondary-foreground: 222 47% 3%;
+
+    --muted: 222 30% 14%;
+    --muted-foreground: 215 20% 60%;
+
+    --accent: 270 100% 70%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 222 30% 16%;
+    --input: 222 30% 16%;
+    --ring: 207 90% 60%;
+
+    --radius: 0.875rem;
+
+    --sidebar-background: 222 47% 5%;
+    --sidebar-foreground: 220 20% 90%;
+    --sidebar-primary: 207 90% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 222 30% 14%;
+    --sidebar-accent-foreground: 220 20% 90%;
+    --sidebar-border: 222 30% 16%;
+    --sidebar-ring: 207 90% 60%;
+
+    /* Custom tokens */
+    --glow-primary: 207 90% 60%;
+    --glow-accent: 270 100% 70%;
+    --gradient-start: 207 90% 60%;
+    --gradient-end: 270 100% 70%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-card/60 backdrop-blur-xl border border-border/50;
+  }
+
+  .glass-hover {
+    @apply hover:bg-card/80 hover:border-primary/30 transition-all duration-300;
+  }
+
+  .glow-primary {
+    box-shadow: 0 0 20px hsl(207 90% 60% / 0.3), 0 0 60px hsl(207 90% 60% / 0.1);
+  }
+
+  .glow-accent {
+    box-shadow: 0 0 20px hsl(270 100% 70% / 0.3), 0 0 60px hsl(270 100% 70% / 0.1);
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(207 90% 60%), hsl(187 80% 55%), hsl(270 100% 70%));
+  }
+
+  .gradient-btn {
+    background: linear-gradient(135deg, hsl(207 90% 60%), hsl(270 100% 70%));
+  }
+
+  .gradient-btn:hover {
+    background: linear-gradient(135deg, hsl(207 90% 65%), hsl(270 100% 75%));
+    box-shadow: 0 0 30px hsl(207 90% 60% / 0.4), 0 0 60px hsl(270 100% 70% / 0.2);
+  }
+
+  .grid-bg {
+    background-image: 
+      linear-gradient(hsl(222 30% 16% / 0.5) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(222 30% 16% / 0.5) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .checkerboard {
+    background-image: 
+      linear-gradient(45deg, hsl(222 30% 12%) 25%, transparent 25%),
+      linear-gradient(-45deg, hsl(222 30% 12%) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, hsl(222 30% 12%) 75%),
+      linear-gradient(-45deg, transparent 75%, hsl(222 30% 12%) 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+  }
+}
