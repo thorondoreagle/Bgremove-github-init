@@ -94,7 +94,7 @@ export const HeroSection = () => {
           </motion.p>
 
           <motion.div variants={fadeUp} custom={3} className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/workspace">
+            <Link to="/dashboard">
               <Button size="lg" className="gradient-btn border-0 text-primary-foreground font-semibold text-base px-8 glow-primary">
                 Start Removing <ArrowRight className="ml-2" size={18} />
               </Button>
@@ -158,7 +158,7 @@ export const FeaturesSection = () => {
         sessionStorage.setItem("workspace.initialImage", data);
         sessionStorage.setItem("workspace.initialImageName", f.name || "image.png");
       } catch {}
-      navigate("/workspace");
+      navigate("/dashboard");
     };
     reader.readAsDataURL(f);
   }, [navigate]);

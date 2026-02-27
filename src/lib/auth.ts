@@ -4,10 +4,22 @@ const USERS_KEY = "removix.users";
 const SESSION_KEY = "removix.session";
 
 async function sha256(text: string) {
-  const enc = new TextEncoder();
-  const data = enc.encode(text);
-  const digest = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+  try {
+    const enc = new TextEncoder();
+    const data = enc.encode(text);
+    // @ts-expect-error window.crypto may not exist in some preview sandboxes
+    const subtle = (globalThis.crypto && globalThis.crypto.subtle) || (window && (window as any).crypto?.subtle);
+    if (subtle) {
+      const digest = await subtle.digest("SHA-256", data);
+      return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+    }
+  } catch {}
+  // Fallback (weak) hash to avoid blocking login in restricted environments
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) {
+    hash = (hash * 31 + text.charCodeAt(i)) >>> 0;
+  }
+  return hash.toString(16).padStart(8, "0");
 }
 
 function loadUsers(): User[] {
@@ -29,8 +41,10 @@ function saveUsers(users: User[]) {
 }
 
 export async function registerUser(name: string, email: string, password: string) {
+  name = name.trim();
+  email = email.trim().toLowerCase();
   const users = loadUsers();
-  const exists = users.some((u) => u.email.toLowerCase() === email.toLowerCase());
+  const exists = users.some((u) => u.email.toLowerCase() === email);
   if (exists) throw new Error("Email already registered");
   const passwordHash = await sha256(password);
   users.push({ name, email, passwordHash });
@@ -40,8 +54,9 @@ export async function registerUser(name: string, email: string, password: string
 }
 
 export async function loginUser(email: string, password: string) {
+  email = email.trim().toLowerCase();
   const users = loadUsers();
-  const user = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+  const user = users.find((u) => u.email.toLowerCase() === email);
   if (!user) throw new Error("Invalid email or password");
   const hash = await sha256(password);
   if (hash !== user.passwordHash) throw new Error("Invalid email or password");

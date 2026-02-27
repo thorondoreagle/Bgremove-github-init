@@ -63,8 +63,8 @@ export const Navbar = () => {
           ) : (
             <>
               <span className="text-sm text-muted-foreground">Hello, {user.name.split(" ")[0]}</span>
-              <Link to="/workspace">
-                <Button variant="outline" size="sm" className="border-border/50">My Workspace</Button>
+              <Link to="/dashboard">
+                <Button variant="outline" size="sm" className="border-border/50">Dashboard</Button>
               </Link>
               <Button size="sm" variant="ghost" onClick={onLogout}>Log Out</Button>
             </>
@@ -112,8 +112,8 @@ export const Navbar = () => {
                 </>
               ) : (
                 <>
-                  <Link to="/workspace" onClick={() => setMobileOpen(false)}>
-                    <Button variant="outline" className="w-full border-border/50">My Workspace</Button>
+                  <Link to="/dashboard" onClick={() => setMobileOpen(false)}>
+                    <Button variant="outline" className="w-full border-border/50">Dashboard</Button>
                   </Link>
                   <Button onClick={() => { setMobileOpen(false); onLogout(); }} className="w-full" variant="ghost">Log Out</Button>
                 </>
