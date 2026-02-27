@@ -142,40 +142,102 @@ export const HeroSection = () => {
   );
 };
 
-export const FeaturesSection = () => (
-  <section id="features" className="py-24 relative">
-    <div className="container mx-auto px-4">
-      <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-16">
-        <motion.h2 variants={fadeUp} custom={0} className="font-display text-4xl md:text-5xl font-bold mb-4">
-          Why <span className="gradient-text">Removix AI</span>?
-        </motion.h2>
-        <motion.p variants={fadeUp} custom={1} className="text-muted-foreground text-lg max-w-md mx-auto">
-          Professional-grade background removal with enterprise features.
-        </motion.p>
-      </motion.div>
+export const FeaturesSection = () => {
+  const navigate = useNavigate();
+  const inputRef = useRef<HTMLInputElement>(null);
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {features.map((f, i) => (
-          <motion.div
-            key={f.title}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeUp}
-            custom={i}
-            className="glass glass-hover rounded-2xl p-6 group"
-          >
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:glow-primary transition-all">
-              <f.icon className="text-primary" size={24} />
-            </div>
-            <h3 className="font-display font-semibold text-lg mb-2">{f.title}</h3>
-            <p className="text-sm text-muted-foreground">{f.desc}</p>
-          </motion.div>
-        ))}
+  const handleFile = useCallback((f: File | null) => {
+    if (!f) return;
+    const valid = ["image/jpeg", "image/png", "image/webp"];
+    if (!valid.includes(f.type)) return;
+    if (f.size > 10 * 1024 * 1024) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const data = e.target?.result as string;
+      try {
+        sessionStorage.setItem("workspace.initialImage", data);
+        sessionStorage.setItem("workspace.initialImageName", f.name || "image.png");
+      } catch {}
+      navigate("/workspace");
+    };
+    reader.readAsDataURL(f);
+  }, [navigate]);
+
+  const onClick = useCallback((e: React.MouseEvent) => {
+    const target = e.target as HTMLElement | null;
+    if (target && target.closest("a,button")) return;
+    inputRef.current?.click();
+  }, []);
+
+  const onDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    const f = e.dataTransfer.files?.[0] || null;
+    handleFile(f);
+  }, [handleFile]);
+
+  const onDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+  }, []);
+
+  const onPaste = useCallback((e: React.ClipboardEvent) => {
+    const f = e.clipboardData.files?.[0] || null;
+    if (f) {
+      e.preventDefault();
+      handleFile(f);
+    }
+  }, [handleFile]);
+
+  return (
+    <section
+      id="features"
+      className="py-24 relative"
+      onClick={onClick}
+      onDrop={onDrop}
+      onDragOver={onDragOver}
+      onPaste={onPaste}
+      role="region"
+      aria-label="Features (click to upload)"
+    >
+      <div className="container mx-auto px-4">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center mb-16">
+          <motion.h2 variants={fadeUp} custom={0} className="font-display text-4xl md:text-5xl font-bold mb-4">
+            Why <span className="gradient-text">Removix AI</span>?
+          </motion.h2>
+          <motion.p variants={fadeUp} custom={1} className="text-muted-foreground text-lg max-w-md mx-auto">
+            Professional-grade background removal with enterprise features.
+          </motion.p>
+        </motion.div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {features.map((f, i) => (
+            <motion.div
+              key={f.title}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeUp}
+              custom={i}
+              className="glass glass-hover rounded-2xl p-6 group"
+            >
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:glow-primary transition-all">
+                <f.icon className="text-primary" size={24} />
+              </div>
+              <h3 className="font-display font-semibold text-lg mb-2">{f.title}</h3>
+              <p className="text-sm text-muted-foreground">{f.desc}</p>
+            </motion.div>
+          ))}
+        </div>
       </div>
-    </div>
-  </section>
-);
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        className="hidden"
+        onChange={(e) => handleFile(e.target.files?.[0] || null)}
+      />
+    </section>
+  );
+};
 
 export const HowItWorksSection = () => (
   <section id="how-it-works" className="py-24 relative">

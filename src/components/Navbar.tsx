@@ -1,9 +1,10 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
+import { getCurrentUser, logoutUser } from "@/lib/auth";
 
 const navLinks = [
   { label: "Features", href: "/#features" },
@@ -16,6 +17,12 @@ const navLinks = [
 export const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const user = getCurrentUser();
+  const onLogout = () => {
+    logoutUser();
+    navigate("/");
+  };
 
   return (
     <motion.header
@@ -42,14 +49,26 @@ export const Navbar = () => {
         </nav>
 
         <div className="hidden md:flex items-center gap-3">
-          <Link to="/login">
-            <Button variant="ghost" size="sm">Log In</Button>
-          </Link>
-          <Link to="/register">
-            <Button size="sm" className="gradient-btn border-0 text-primary-foreground font-semibold">
-              Get Started Free
-            </Button>
-          </Link>
+          {!user ? (
+            <>
+              <Link to="/login">
+                <Button variant="ghost" size="sm">Log In</Button>
+              </Link>
+              <Link to="/register">
+                <Button size="sm" className="gradient-btn border-0 text-primary-foreground font-semibold">
+                  Get Started Free
+                </Button>
+              </Link>
+            </>
+          ) : (
+            <>
+              <span className="text-sm text-muted-foreground">Hello, {user.name.split(" ")[0]}</span>
+              <Link to="/workspace">
+                <Button variant="outline" size="sm" className="border-border/50">My Workspace</Button>
+              </Link>
+              <Button size="sm" variant="ghost" onClick={onLogout}>Log Out</Button>
+            </>
+          )}
         </div>
 
         {/* Mobile toggle */}
@@ -80,14 +99,25 @@ export const Navbar = () => {
               </Link>
             ))}
             <div className="flex flex-col gap-2 pt-2 border-t border-border/30">
-              <Link to="/login" onClick={() => setMobileOpen(false)}>
-                <Button variant="ghost" className="w-full">Log In</Button>
-              </Link>
-              <Link to="/register" onClick={() => setMobileOpen(false)}>
-                <Button className="w-full gradient-btn border-0 text-primary-foreground font-semibold">
-                  Get Started Free
-                </Button>
-              </Link>
+              {!user ? (
+                <>
+                  <Link to="/login" onClick={() => setMobileOpen(false)}>
+                    <Button variant="ghost" className="w-full">Log In</Button>
+                  </Link>
+                  <Link to="/register" onClick={() => setMobileOpen(false)}>
+                    <Button className="w-full gradient-btn border-0 text-primary-foreground font-semibold">
+                      Get Started Free
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link to="/workspace" onClick={() => setMobileOpen(false)}>
+                    <Button variant="outline" className="w-full border-border/50">My Workspace</Button>
+                  </Link>
+                  <Button onClick={() => { setMobileOpen(false); onLogout(); }} className="w-full" variant="ghost">Log Out</Button>
+                </>
+              )}
             </div>
           </div>
         </motion.div>

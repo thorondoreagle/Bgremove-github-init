@@ -6,6 +6,7 @@ import { Upload, Download, X, Image, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/Navbar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { getCurrentUser } from "@/lib/auth";
 
 const Workspace = () => {
   const { toast } = useToast();
@@ -28,10 +29,15 @@ const Workspace = () => {
   );
   const limit = plan === "credits" ? 200 : 100;
 
+  const user = getCurrentUser();
+  const emailKey = user?.email?.toLowerCase();
+  const historyStorageKey = emailKey ? `removix.history.${emailKey}` : "removix.history";
+  const usageStorageKey = emailKey ? `removix.usage.${emailKey}` : "removix.usage";
+
   const todayKey = () => new Date().toISOString().slice(0, 10);
   const readUsage = useCallback(() => {
     try {
-      const raw = localStorage.getItem("removix.usage");
+      const raw = localStorage.getItem(usageStorageKey);
       if (!raw) return { date: todayKey(), count: 0 };
       const obj = JSON.parse(raw);
       if (obj.date !== todayKey()) return { date: todayKey(), count: 0 };
@@ -39,10 +45,10 @@ const Workspace = () => {
     } catch {
       return { date: todayKey(), count: 0 };
     }
-  }, []);
+  }, [usageStorageKey]);
   const writeUsage = (count: number) => {
     try {
-      localStorage.setItem("removix.usage", JSON.stringify({ date: todayKey(), count }));
+      localStorage.setItem(usageStorageKey, JSON.stringify({ date: todayKey(), count }));
     } catch {}
   };
 
@@ -82,23 +88,33 @@ const Workspace = () => {
 
   const loadHistory = useCallback(() => {
     try {
-      const raw = localStorage.getItem("removix.history");
+      const raw = localStorage.getItem(historyStorageKey);
       if (raw) {
         const arr = JSON.parse(raw);
         if (Array.isArray(arr)) setHistory(arr);
       }
+      // Migrate guest history to user on first login
+      if (emailKey) {
+        const guest = localStorage.getItem("removix.history");
+        if (guest && (!raw || raw === "[]")) {
+          localStorage.setItem(historyStorageKey, guest);
+          localStorage.removeItem("removix.history");
+          const arr = JSON.parse(guest);
+          if (Array.isArray(arr)) setHistory(arr);
+        }
+      }
     } catch {}
-  }, []);
+  }, [historyStorageKey, emailKey]);
 
   const saveHistory = useCallback(
     (item: { id: string; name: string; original: string; output: string; ts: number }) => {
       const next = [item, ...history].slice(0, 100);
       setHistory(next);
       try {
-        localStorage.setItem("removix.history", JSON.stringify(next));
+        localStorage.setItem(historyStorageKey, JSON.stringify(next));
       } catch {}
     },
-    [history],
+    [history, historyStorageKey],
   );
 
   const toDataUrl = useCallback(async (src: string) => {
@@ -180,7 +196,7 @@ const Workspace = () => {
     try {
       const form = new FormData();
       form.append("file", file, file.name || "image.png");
-      const res = await fetch("/api/remove-background", {
+      const res = await fetch("https://eaglethorondor.app.n8n.cloud/webhook/remove-background", {
         method: "POST",
         body: form,
       });
